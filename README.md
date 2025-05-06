@@ -2,7 +2,11 @@
 # Initialized by:
 spring init --name aws-s3-notify --java-version=17 --package-name=com.epsilon.auto.poc --group=com.epsilon.auto.poc --artifact=aws-s3-notify --type=maven-project
 
+# Run:
+mvn spring-boot:run
 
+# Send Event:
+curl -X POST --data @src/test/resources/aws-s3-event-json.json -H 'Content-Type: application/json' http://localhost:8080/aws/s3event
 # Explore: 
 RestAssured:
 https://medium.com/@bubu.tripathy/testing-restful-apis-with-rest-assured-6d245401deea
