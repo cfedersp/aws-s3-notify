@@ -1,0 +1,10 @@
+spring:
+  application:
+    name: aws-s3-notify
+input:
+  bucket:
+    region: us-west-1
+    name: cjf-epsilon-demos
+    keyPrefix: installers
+  filter:
+    - SEARCHFORCE_STARTED_PROCESSING

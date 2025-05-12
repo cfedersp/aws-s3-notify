@@ -3,7 +3,7 @@
 spring init --name aws-s3-notify --java-version=17 --package-name=com.epsilon.auto.poc --group=com.epsilon.auto.poc --artifact=aws-s3-notify --type=maven-project
 
 # Local Run:
-mvn spring-boot:run
+BUCKET_NAME=cjf-epsilon-demos mvn spring-boot:run
 
 # Build deployable jar:
 mvn package spring-boot:repackage
@@ -15,7 +15,7 @@ scp target/aws-s3-notify-0.0.1-SNAPSHOT.jar ec2-user@ec2-54-183-194-74.us-west-1
 aws s3 cp target/aws-s3-notify-0.0.1-SNAPSHOT.jar s3://cjf-epsilon-demos/installers/aws-demos/
 
 # Run command:
-java -jar aws-s3-notify-0.0.1-SNAPSHOT.jar --server.port=80
+BUCKET_NAME=cjf-epsilon-demos java -jar aws-s3-notify-0.0.1-SNAPSHOT.jar --server.port=80
 
 # Run from an SSH session:
 ssh ec2-user@ec2-54-183-194-74.us-west-1.compute.amazonaws.com
