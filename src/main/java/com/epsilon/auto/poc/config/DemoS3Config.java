@@ -1,5 +1,7 @@
 package com.epsilon.auto.poc.config;
 
+import io.micrometer.common.util.StringUtils;
+import lombok.extern.slf4j.Slf4j;
 import software.amazon.awssdk.auth.credentials.ProfileCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
 import org.springframework.beans.factory.annotation.Value;
@@ -7,11 +9,11 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestClient;
 import software.amazon.awssdk.services.s3.S3Client;
-
+@Slf4j
 @Configuration
 public class DemoS3Config {
 
-    @Value("${awsProfile}")
+    @Value("${aws.profile:#{null}}")
     protected String profile;
     @Value("${input.bucket.region}")
     protected String region;
@@ -23,9 +25,16 @@ public class DemoS3Config {
 
     @Bean
     public S3Client s3Client() {
-        return S3Client.builder()
-                .credentialsProvider(ProfileCredentialsProvider.create(profile))
-                .region(Region.of(region))
-                .build();
+        if(StringUtils.isBlank(profile)) {
+            log.warn("No AWS profile specified");
+            return S3Client.builder()
+                    .region(Region.of(region))
+                    .build();
+        } else {
+            return S3Client.builder()
+                    .credentialsProvider(ProfileCredentialsProvider.create(profile))
+                    .region(Region.of(region))
+                    .build();
+        }
     }
 }

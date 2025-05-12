@@ -2,11 +2,26 @@
 # Initialized by:
 spring init --name aws-s3-notify --java-version=17 --package-name=com.epsilon.auto.poc --group=com.epsilon.auto.poc --artifact=aws-s3-notify --type=maven-project
 
-# Local Run:
-BUCKET_NAME=cjf-epsilon-demos mvn spring-boot:run
+# Login to AWS 
+Requires AWS Identity Center login, including URL, username and pw
+aws configure sso
+
+# Test S3 access:
+aws s3 ls s3://cjf-epsilon-demos/ --profile AdministratorAccess-339713066603
 
 # Build deployable jar:
-mvn package spring-boot:repackage
+mvn clean package spring-boot:repackage -Dmaven.test.skip=true
+
+# Build + Test deployable jar:
+mvn clean package spring-boot:repackage -Daws.profile=AdministratorAccess-339713066603
+or
+update main/resources/application-local.yaml
+mvn clean package spring-boot:repackage -Dspring.profiles.active=test,local
+
+
+# Local Run:
+java -jar target/aws-s3-notify-0.0.1-SNAPSHOT.jar --spring.profiles.active=local
+
 
 # Deploy the app:
 scp target/aws-s3-notify-0.0.1-SNAPSHOT.jar ec2-user@ec2-54-183-194-74.us-west-1.compute.amazonaws.com:~/
@@ -14,12 +29,13 @@ scp target/aws-s3-notify-0.0.1-SNAPSHOT.jar ec2-user@ec2-54-183-194-74.us-west-1
 # Deploy via S3:
 aws s3 cp target/aws-s3-notify-0.0.1-SNAPSHOT.jar s3://cjf-epsilon-demos/installers/aws-demos/
 
-# Run command:
-BUCKET_NAME=cjf-epsilon-demos java -jar aws-s3-notify-0.0.1-SNAPSHOT.jar --server.port=80
+# Run command on EC2
+The profile is optional, and the EC2 instance should already have an instance profile connected to an IAM Role that can access your bucket
+java -jar aws-s3-notify-0.0.1-SNAPSHOT.jar 
 
 # Run from an SSH session:
 ssh ec2-user@ec2-54-183-194-74.us-west-1.compute.amazonaws.com
-sudo nohup java -jar aws-s3-notify-0.0.1-SNAPSHOT.jar --server.port=80 &
+sudo nohup java -jar aws-s3-notify-0.0.1-SNAPSHOT.jar &
 
 # SNS Confirmation structure:
 {
