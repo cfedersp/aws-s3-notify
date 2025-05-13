@@ -27,7 +27,7 @@ java -jar target/aws-s3-notify-0.0.1-SNAPSHOT.jar --spring.profiles.active=local
 scp target/aws-s3-notify-0.0.1-SNAPSHOT.jar ec2-user@ec2-54-183-194-74.us-west-1.compute.amazonaws.com:~/
 
 # Deploy via S3:
-aws s3 cp target/aws-s3-notify-0.0.1-SNAPSHOT.jar s3://cjf-epsilon-demos/installers/aws-demos/
+aws s3 cp target/aws-s3-notify-0.0.1-SNAPSHOT.jar s3://cjf-epsilon-demos/installers/aws-demos/ --profile AdministratorAccess-339713066603
 
 # Run command on EC2
 The profile is optional, and the EC2 instance should already have an instance profile connected to an IAM Role that can access your bucket

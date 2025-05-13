@@ -8,5 +8,7 @@ input:
     region: us-west-1
     name: cjf-epsilon-demos
     keyPrefix: installers
-  filter:
-    - SEARCHFORCE_STARTED_PROCESSING
+  skipFolders: true
+  tagFilter:
+    minus:
+      - SEARCHFORCE_STARTED_PROCESSING
