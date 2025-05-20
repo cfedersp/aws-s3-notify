@@ -12,3 +12,14 @@ input:
   tagFilter:
     minus:
       - SEARCHFORCE_STARTED_PROCESSING
+transform:
+  local:
+    dir: /tmp
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always

@@ -20,14 +20,14 @@ mvn clean package spring-boot:repackage -Dspring.profiles.active=test,local
 
 
 # Local Run:
-java -jar target/aws-s3-notify-0.0.1-SNAPSHOT.jar --spring.profiles.active=local
+java -jar target/aws-s3-notify-1.0.jar --spring.profiles.active=local
 
 
 # Deploy the app:
-scp target/aws-s3-notify-0.0.1-SNAPSHOT.jar ec2-user@ec2-54-183-194-74.us-west-1.compute.amazonaws.com:~/
+scp target/aws-s3-notify-1.0.jar ec2-user@ec2-54-183-194-74.us-west-1.compute.amazonaws.com:~/
 
 # Deploy via S3:
-aws s3 cp target/aws-s3-notify-0.0.1-SNAPSHOT.jar s3://cjf-epsilon-demos/installers/aws-demos/ --profile AdministratorAccess-339713066603
+aws s3 cp target/aws-s3-notify-1.0.jar s3://cjf-epsilon-demos/installers/aws-demos/ --profile AdministratorAccess-339713066603
 
 # Run command on EC2
 The profile is optional, and the EC2 instance should already have an instance profile connected to an IAM Role that can access your bucket
@@ -53,6 +53,16 @@ sudo nohup java -jar aws-s3-notify-0.0.1-SNAPSHOT.jar &
 # Send Event:
 curl -X POST --data @src/test/resources/aws-s3-event-json.json -H 'Content-Type: application/json' http://localhost:8080/aws/s3event
 curl --data @src/test/resources/aws-s3-event-json.json -H 'Content-Type: application/json' http://ec2-3-101-190-41.us-west-1.compute.amazonaws.com/aws/s3event
+# View logs
+journalctl -f -u s3-handler --since "1 hour ago"
+
+# Build and Deploy docker image
+docker buildx build -t aws-s3-notify:1.0 .
+aws ecr create-repository --repository-name aws-s3-notify --image-tag-mutability IMMUTABLE --region us-east-1
+docker tag aws-s3-notify:1.0 097273071583.dkr.ecr.us-east-1.amazonaws.com/aws-s3-notify:1.0
+docker login -u AWS -p $(aws ecr get-login-password --region us-east-1) 097273071583.dkr.ecr.us-east-1.amazonaws.com
+docker push 097273071583.dkr.ecr.us-east-1.amazonaws.com/aws-s3-notify:1.0
+aws eks update-kubeconfig --name OuttaTimeOraclesClusterWest --region us-east-1
 
 # Explore: 
 AWS Docs:
