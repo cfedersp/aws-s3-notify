@@ -56,14 +56,22 @@ curl --data @src/test/resources/aws-s3-event-json.json -H 'Content-Type: applica
 # View logs
 journalctl -f -u s3-handler --since "1 hour ago"
 
-# Build and Deploy docker image
+# Build and Release the image using Docker
 docker buildx build -t aws-s3-notify:1.0 .
 aws ecr create-repository --repository-name aws-s3-notify --image-tag-mutability IMMUTABLE --region us-east-1
 docker tag aws-s3-notify:1.0 097273071583.dkr.ecr.us-east-1.amazonaws.com/aws-s3-notify:1.0
 docker login -u AWS -p $(aws ecr get-login-password --region us-east-1) 097273071583.dkr.ecr.us-east-1.amazonaws.com
 docker push 097273071583.dkr.ecr.us-east-1.amazonaws.com/aws-s3-notify:1.0
-aws eks update-kubeconfig --name OuttaTimeOraclesClusterWest --region us-east-1
 
+# Build and Release the image with Podman:
+podman buildx build -t aws-s3-notify:1.0 .
+aws ecr create-repository --repository-name aws-s3-notify --image-tag-mutability IMMUTABLE --region us-west-1 --profile AdministratorAccess-339713066603
+podman tag aws-s3-notify:1.0 339713066603.dkr.ecr.us-west-1.amazonaws.com/aws-s3-notify:1.0
+aws ecr get-login-password --region us-west-1 --profile AdministratorAccess-339713066603 | podman login --username AWS --password-stdin 339713066603.dkr.ecr.us-west-1.amazonaws.com
+podman push 339713066603.dkr.ecr.us-west-1.amazonaws.com/aws-s3-notify:1.0
+
+# Update kubeconfig once your cluster is deployed
+aws eks update-kubeconfig --name OuttaTimeOraclesClusterWest --region us-east-1 --profile AdministratorAccess-339713066603
 # Explore: 
 AWS Docs:
 https://docs.aws.amazon.com/sns/latest/dg/SendMessageToHttp.prepare.html
