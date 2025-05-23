@@ -63,12 +63,19 @@ docker tag aws-s3-notify:1.0 097273071583.dkr.ecr.us-east-1.amazonaws.com/aws-s3
 docker login -u AWS -p $(aws ecr get-login-password --region us-east-1) 097273071583.dkr.ecr.us-east-1.amazonaws.com
 docker push 097273071583.dkr.ecr.us-east-1.amazonaws.com/aws-s3-notify:1.0
 
-# Build and Release the image with Podman:
-podman buildx build -t aws-s3-notify:1.0 .
+# Repository Setup:
+Be sure podman desktop is running.
+Update aws [sso] credentials: aws configure sso
 aws ecr create-repository --repository-name aws-s3-notify --image-tag-mutability IMMUTABLE --region us-west-1 --profile AdministratorAccess-339713066603
-podman tag aws-s3-notify:1.0 339713066603.dkr.ecr.us-west-1.amazonaws.com/aws-s3-notify:1.0
+
+# Get oriented:
+podman run amazoncorretto pwd
+
+# Build and Release the image with Podman:
+podman buildx build -t aws-s3-notify:1.1 .
+podman tag aws-s3-notify:1.1 339713066603.dkr.ecr.us-west-1.amazonaws.com/aws-s3-notify:1.1
 aws ecr get-login-password --region us-west-1 --profile AdministratorAccess-339713066603 | podman login --username AWS --password-stdin 339713066603.dkr.ecr.us-west-1.amazonaws.com
-podman push 339713066603.dkr.ecr.us-west-1.amazonaws.com/aws-s3-notify:1.0
+podman push 339713066603.dkr.ecr.us-west-1.amazonaws.com/aws-s3-notify:1.1
 
 # Update kubeconfig once your cluster is deployed
 aws eks update-kubeconfig --name OuttaTimeOraclesClusterWest --region us-east-1 --profile AdministratorAccess-339713066603
