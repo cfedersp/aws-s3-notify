@@ -1,8 +1,6 @@
 spring:
   application:
     name: aws-s3-notify
-  server:
-    port: 80
 input:
   bucket:
     region: us-west-1
