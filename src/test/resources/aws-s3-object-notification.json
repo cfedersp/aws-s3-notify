@@ -1,0 +1,12 @@
+{
+  "Type" : "Notification",
+  "MessageId" : "aa5c3272-a2f7-58f4-993b-52c073c8a4fa",
+  "TopicArn" : "arn:aws:sns:us-west-1:339713066603:cjf-epsilon-demos-notify-topic",
+  "Subject" : "Amazon S3 Notification",
+  "Message" : "{\"Records\":[{\"eventVersion\":\"2.1\",\"eventSource\":\"aws:s3\",\"awsRegion\":\"us-west-1\",\"eventTime\":\"2025-05-29T21:17:51.252Z\",\"eventName\":\"ObjectCreated:Put\",\"userIdentity\":{\"principalId\":\"AWS:AROAU6GD2AZVZGV3GXLBV:cjfepsilon\"},\"requestParameters\":{\"sourceIPAddress\":\"64.156.196.18\"},\"responseElements\":{\"x-amz-request-id\":\"YJZ9RB0A2KAXN18J\",\"x-amz-id-2\":\"O/bpmJdiAk+MehKnlRWzLX9i04yYcqBQXHZ3tvSRxLEyjFq9SbIf8pWOALpaeIibTfwqwsBpnIJTEO+ciwteGOitpItsrjVT\"},\"s3\":{\"s3SchemaVersion\":\"1.0\",\"configurationId\":\"tf-s3-topic-20250529205934523700000003\",\"bucket\":{\"name\":\"cjf-epsilon-demos\",\"ownerIdentity\":{\"principalId\":\"A1U36OPGBGONPN\"},\"arn\":\"arn:aws:s3:::cjf-epsilon-demos\"},\"object\":{\"key\":\"installers/aws-demos/2025BenefitsGuide_EE.pdf\",\"size\":812621,\"eTag\":\"876db60fb2fcb46288a490637b07fd10\",\"sequencer\":\"006838CEFF34F34B3B\"}}}]}",
+  "Timestamp" : "2025-05-29T21:17:51.726Z",
+  "SignatureVersion" : "1",
+  "Signature" : "Pc1E+j5W5fgUgt/4U4lFH4nzn2gnrdl8LJRFQK5MrAONH9Gn+wwv9rClJKoxcIG1jp3hMFCpBgVgOG0lpXeFZcBd8Fgg12ouwifroO3MSyPh7VLVDuIDQNJXH/F6k+dwdWcZII/Su0yIOcenmnLEhnrG08onalsjrvb0kJwvVhXf+NcBtRKP3kA1QDpJWTZy2nv7erd8lZtwB43jJrbJQ1bGBXC4cpBjbg/zLOE+GNZnHkF5eg84PyMkDAzBARPMRS1nRI9v4HjUcYtmE/nD5gJpeyjylw075v9FradQA/knWJ2x6tVyoBV/a04TKv4VHnKc2C42FyuFH8q8a5xmQA==",
+  "SigningCertURL" : "https://sns.us-west-1.amazonaws.com/SimpleNotificationService-9c6465fa7f48f5cacd23014631ec1136.pem",
+  "UnsubscribeURL" : "https://sns.us-west-1.amazonaws.com/?Action=Unsubscribe&SubscriptionArn=arn:aws:sns:us-west-1:339713066603:cjf-epsilon-demos-notify-topic:b6e5b63b-f28e-4f82-b707-fe1477d7e80f"
+}

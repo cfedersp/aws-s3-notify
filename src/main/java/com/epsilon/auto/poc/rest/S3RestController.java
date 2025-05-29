@@ -37,6 +37,7 @@ public class S3RestController {
     @PostMapping(value = "/aws/s3event")
     public void handleS3Notification(HttpServletRequest request) throws IOException {
         String event = new String(request.getInputStream().readAllBytes(), Charset.forName("UTF-8"));
+        log.info("incoming event: {}", event);
         try {
             SnsMessage msg = mapper.readValue(event, SnsMessage.class);
             log.info("Event type: {}", msg.getType());
