@@ -19,8 +19,7 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
 
@@ -44,40 +43,39 @@ public class FileTransformProcessor {
         Path localDirAndFile = Path.of(localDir.toString(), fileName);
 
         CompletableFuture<CompletedFileDownload> downloadTask = downloadFileAsync(bucketName, key, localDirAndFile);
-        List<Tag> transformTags = new ArrayList<>();
-        transformTags.add(Tag.builder().key(String.valueOf(TAG_SEQUENCE.SEARCHFORCE_DOWNLOADING)).value(LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)).build());
-        PutObjectTaggingRequest downloadTagReq = PutObjectTaggingRequest.builder().bucket(bucketName).key(key).tagging(Tagging.builder().tagSet(transformTags).build()).build();
+        Map<String, Tag> transformTags = new HashMap<>();
+        transformTags.put(TAG_SEQUENCE.SEARCHFORCE_DOWNLOADING.name(), Tag.builder().key(TAG_SEQUENCE.SEARCHFORCE_DOWNLOADING.name()).value(LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)).build());
+        PutObjectTaggingRequest downloadTagReq = PutObjectTaggingRequest.builder().bucket(bucketName).key(key).tagging(Tagging.builder().tagSet(transformTags.values()).build()).build();
         s3Client.putObjectTagging(downloadTagReq);
         CompletedFileDownload downloadResult = downloadTask.join();
 
         try {
-            transformTags.add(Tag.builder().key(String.valueOf(TAG_SEQUENCE.SEARCHFORCE_STARTED_PROCESSING)).value(LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)).build());
-            PutObjectTaggingRequest startedTagReq = PutObjectTaggingRequest.builder().bucket(bucketName).key(key).tagging(Tagging.builder().tagSet(transformTags).build()).build();
+            transformTags.put(TAG_SEQUENCE.SEARCHFORCE_STARTED_PROCESSING.name(), Tag.builder().key(TAG_SEQUENCE.SEARCHFORCE_STARTED_PROCESSING.name()).value(LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)).build());
+            PutObjectTaggingRequest startedTagReq = PutObjectTaggingRequest.builder().bucket(bucketName).key(key).tagging(Tagging.builder().tagSet(transformTags.values()).build()).build();
             s3Client.putObjectTagging(startedTagReq);
             processFile(localDirAndFile, downloadResult);
 
-            transformTags.add(Tag.builder().key(String.valueOf(
-                    TAG_SEQUENCE.SEARCHFORCE_COMPLETION_STATUS)
+            transformTags.put(TAG_SEQUENCE.SEARCHFORCE_COMPLETION_STATUS.name(), Tag.builder().key(
+                    TAG_SEQUENCE.SEARCHFORCE_COMPLETION_STATUS.name()
             ).value("SUCCESS").build());
             PutObjectTaggingRequest completedTagReq = PutObjectTaggingRequest.builder().bucket(bucketName).key(key).tagging(
                             Tagging.builder().tagSet(
-                                            transformTags)
+                                            transformTags.values())
                                     .build())
                     .build();
             s3Client.putObjectTagging(completedTagReq);
 
         } catch(Exception e) {
-            transformTags.add(Tag.builder().key(String.valueOf(TAG_SEQUENCE.SEARCHFORCE_COMPLETION_STATUS)).value("FAILED").build());
+            transformTags.put(TAG_SEQUENCE.SEARCHFORCE_COMPLETION_STATUS.name(), Tag.builder().key(TAG_SEQUENCE.SEARCHFORCE_COMPLETION_STATUS.name()).value("FAILED").build());
             PutObjectTaggingRequest statusTagReq = PutObjectTaggingRequest.builder().bucket(bucketName).key(key).tagging(
                             Tagging.builder().tagSet(
-                                            transformTags)
+                                            transformTags.values())
                                     .build())
                     .build();
             s3Client.putObjectTagging(statusTagReq);
         } finally {
-            transformTags.add(Tag.builder().key(String.valueOf(TAG_SEQUENCE.SEARCHFORCE_COMPLETED_PROCESSING)).value(LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)).build());
-            PutObjectTaggingRequest completedTagReq = PutObjectTaggingRequest.builder().bucket(bucketName).key(key).tagging(Tagging.builder().tagSet(transformTags).build()).build();
-            s3Client.putObjectTagging(completedTagReq);
+            transformTags.put(TAG_SEQUENCE.SEARCHFORCE_COMPLETED_PROCESSING.name(), Tag.builder().key(String.valueOf(TAG_SEQUENCE.SEARCHFORCE_COMPLETED_PROCESSING)).value(LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)).build());
+            updateTags(bucketName, key, transformTags);
         }
     }
     public CompletableFuture<CompletedFileDownload> downloadFileAsync(String bucketName, String key, Path localDirAndFile) {
@@ -91,7 +89,14 @@ public class FileTransformProcessor {
         FileDownload downloadFile = transferManager.downloadFile(downloadRequest);
         return downloadFile.completionFuture();
     }
-
+    protected void updateTags(String bucketName, String objectKey, Map<String, Tag> objectTags) {
+        PutObjectTaggingRequest completedTagReq = PutObjectTaggingRequest.builder().bucket(bucketName).key(objectKey).tagging(
+                Tagging.builder().tagSet(
+                        objectTags.values()
+                ).build()
+        ).build();
+        s3Client.putObjectTagging(completedTagReq);
+    }
     protected void processFile(Path localDirAndFile, CompletedFileDownload dataFile) {
         log.info("Content length [{}]", dataFile.response().contentLength());
         log.info("Processed file {}", localDirAndFile);

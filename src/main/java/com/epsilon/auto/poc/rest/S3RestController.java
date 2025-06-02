@@ -53,7 +53,7 @@ public class S3RestController {
                 });
             }
         } catch (Exception e) {
-            log.error("Could not handle event: {}.\n{}", event, e.toString());
+            log.error("Could not handle event: {}.\n{}", event, e.toString(), e);
         }
     }
     private void handleSNSConfirmation(SnsMessage confirmReq) {
