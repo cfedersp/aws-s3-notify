@@ -31,7 +31,7 @@ aws s3 cp target/aws-s3-notify-1.0.jar s3://cjf-epsilon-demos/installers/aws-dem
 
 # Run command on EC2
 The profile is optional, and the EC2 instance should already have an instance profile connected to an IAM Role that can access your bucket
-java -jar aws-s3-notify-0.0.1-SNAPSHOT.jar 
+java -jar aws-s3-notify-1.0.jar 
 
 # Run from an SSH session:
 ssh ec2-user@ec2-54-183-194-74.us-west-1.compute.amazonaws.com
@@ -56,12 +56,18 @@ curl --data @src/test/resources/aws-s3-event-json.json -H 'Content-Type: applica
 # View logs
 journalctl -f -u s3-handler --since "1 hour ago"
 
-# Build and Release the image using Docker
-docker buildx build -t aws-s3-notify:1.0 .
+# Build and Release the image using Docker (not tested)
+Increment pom version.
+Increment jar version in Dockerfile
+Pom, Dockerfile and this build command should all match.
+docker buildx build --platform linux/amd64,linux/arm64 -t aws-s3-notify:1.4 .
 aws ecr create-repository --repository-name aws-s3-notify --image-tag-mutability IMMUTABLE --region us-east-1
-docker tag aws-s3-notify:1.0 097273071583.dkr.ecr.us-east-1.amazonaws.com/aws-s3-notify:1.0
+docker tag aws-s3-notify:1.4 097273071583.dkr.ecr.us-east-1.amazonaws.com/aws-s3-notify:1.4
 docker login -u AWS -p $(aws ecr get-login-password --region us-east-1) 097273071583.dkr.ecr.us-east-1.amazonaws.com
-docker push 097273071583.dkr.ecr.us-east-1.amazonaws.com/aws-s3-notify:1.0
+docker push 097273071583.dkr.ecr.us-east-1.amazonaws.com/aws-s3-notify:1.4
+
+docker image inspect aws-s3-notify:1.4
+docker buildx imagetools inspect aws-s3-notify:1.4
 
 # Repository Setup:
 Be sure podman desktop is running.
@@ -72,13 +78,23 @@ aws ecr create-repository --repository-name aws-s3-notify --image-tag-mutability
 podman run amazoncorretto pwd
 
 # Build and Release the image with Podman:
-podman buildx build -t aws-s3-notify:1.1 .
-podman tag aws-s3-notify:1.1 339713066603.dkr.ecr.us-west-1.amazonaws.com/aws-s3-notify:1.1
+# Differences - create the manifest manually for each specific tag. Dont use buildx for multi-arch. Since the manifest contains all images, we simply push the manifest.
+podman manifest create localhost/aws-s3-notify:1.5 
+podman build --platform linux/amd64,linux/arm64 --manifest localhost/aws-s3-notify:1.5 .
+podman tag localhost/aws-s3-notify:1.5 339713066603.dkr.ecr.us-west-1.amazonaws.com/aws-s3-notify:1.5
 aws ecr get-login-password --region us-west-1 --profile AdministratorAccess-339713066603 | podman login --username AWS --password-stdin 339713066603.dkr.ecr.us-west-1.amazonaws.com
-podman push 339713066603.dkr.ecr.us-west-1.amazonaws.com/aws-s3-notify:1.1
+podman manifest push 339713066603.dkr.ecr.us-west-1.amazonaws.com/aws-s3-notify:1.5
 
+podman image ls
+podman image inspect aws-s3-notify:1.4
+podman manifest inspect localhost/aws-s3-notify:1.4
+podman manifest inspect localhost/aws-s3-notify:latest
 # Update kubeconfig once your cluster is deployed
 aws eks update-kubeconfig --name OuttaTimeOraclesClusterWest --region us-east-1 --profile AdministratorAccess-339713066603
+
+# Create Deployment
+kubectl create deployment s3-listener --replicas=1 --image=339713066603.dkr.ecr.us-west-1.amazonaws.com/aws-s3-notify:1.5
+
 # Explore: 
 AWS Docs:
 https://docs.aws.amazon.com/sns/latest/dg/SendMessageToHttp.prepare.html

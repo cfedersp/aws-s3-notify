@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>com.epsilon.auto.poc</groupId>
 	<artifactId>aws-s3-notify</artifactId>
-	<version>1.0</version>
+	<version>1.5</version>
 	<name>aws-s3-notify</name>
 	<description>Demo project for Spring Boot</description>
 	<url/>
