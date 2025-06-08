@@ -79,11 +79,11 @@ podman run amazoncorretto pwd
 
 # Build and Release the image with Podman:
 # Differences - create the manifest manually for each specific tag. Dont use buildx for multi-arch. Since the manifest contains all images, we simply push the manifest.
-podman manifest create localhost/aws-s3-notify:1.5 
-podman build --platform linux/amd64,linux/arm64 --manifest localhost/aws-s3-notify:1.5 .
-podman tag localhost/aws-s3-notify:1.5 339713066603.dkr.ecr.us-west-1.amazonaws.com/aws-s3-notify:1.5
+podman manifest create localhost/aws-s3-notify:1.6
+podman build --platform linux/amd64,linux/arm64 --manifest localhost/aws-s3-notify:1.6 .
+podman tag localhost/aws-s3-notify:1.6 339713066603.dkr.ecr.us-west-1.amazonaws.com/aws-s3-notify:1.6
 aws ecr get-login-password --region us-west-1 --profile AdministratorAccess-339713066603 | podman login --username AWS --password-stdin 339713066603.dkr.ecr.us-west-1.amazonaws.com
-podman manifest push 339713066603.dkr.ecr.us-west-1.amazonaws.com/aws-s3-notify:1.5
+podman manifest push 339713066603.dkr.ecr.us-west-1.amazonaws.com/aws-s3-notify:1.6
 
 podman image ls
 podman image inspect aws-s3-notify:1.4
